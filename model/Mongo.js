@@ -42,6 +42,12 @@ module.exports = class Mongo {
         });
     }
 
+    static findById(id, collection) {
+        return conn.then(conn => {
+            return conn.db.collection(collection).find({"_id": ObjectId(id)}).toArray();
+        });
+    }
+
     static close() {
         conn.then(conn => {
             conn.close();
