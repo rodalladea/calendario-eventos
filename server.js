@@ -24,10 +24,10 @@ app.get('/cadastro', (req, res) => {
     res.render('cadastro');
 });
 
-app.get('/calendario', verifyJWT, (req, res) => {
-    Usuarios.findById(req.userId, 'usuario').then((usuarios) => {
-        res.render('calendario', {usuario: usuarios[0].nome});
-    });
+app.get('/calendario', (req, res) => {
+    //Usuarios.findById(req.userId, 'usuario').then((usuarios) => {
+        res.render('calendario');
+    //});
 });
 
 
