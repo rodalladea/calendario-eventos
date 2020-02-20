@@ -1,3 +1,29 @@
-.w-45p {
-    width: 45px;
+html {
+    scroll-behavior: smooth;
+}
+
+.w-calendario {
+    width: 38px;
+}
+
+.bg-calendario {
+    background-color: rgba(0, 123, 255, 0.411);
+}
+
+@media screen and (min-width: 1400px) {
+    .w-calendario {
+        width: 75px;
+    }
+}
+
+@media screen and (min-width: 1055px) and (max-width: 1399px) {
+    .w-calendario {
+        width: 55px;
+    }
+}
+
+@media screen and (min-width: 321px) and (max-width: 1054px) {
+    .w-calendario {
+        width: 45px;
+    }
 }

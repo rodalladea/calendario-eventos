@@ -6,11 +6,13 @@ const jwt = require('jsonwebtoken');
 const app = express();
 
 const Usuarios = require('./model/Usuario');
+const Eventos = require('./model/Evento');
 
 const TOKEN = 'bnisesnduw34r45nifug';
 
 app.use(express.static(path.join(__dirname, 'view/public')));
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 app.use(cookieParser());
 
 app.set('views', path.join(__dirname, 'view'));
@@ -24,16 +26,21 @@ app.get('/cadastro', (req, res) => {
     res.render('cadastro');
 });
 
-app.get('/calendario', (req, res) => {
+app.get('/calendario', verifyJWT, (req, res) => {
     //Usuarios.findById(req.userId, 'usuario').then((usuarios) => {
-        res.render('calendario');
+        res.render('calendario', { _id: req.userId });
     //});
 });
 
 
-
 app.get('/usuarios', (req, res) => {
     Usuarios.find({}, {}, 0, 'usuario').then(result => {
+        res.send(result);
+    });
+})
+
+app.get('/eventos', (req, res) => {
+    Usuarios.find({ "mesEvento": req.query.mes, "anoEvento": req.query.ano }, {}, 0, 'evento').then(result => {
         res.send(result);
     });
 })
@@ -73,6 +80,14 @@ app.post('/login', (req, res) => {
 
         res.end();
     });
+});
+
+app.post('/evento/adicionar', (req, res) => {
+    let evento = new Eventos(req.body);
+    evento.save();
+
+    res.redirect('/calendario');
+    res.end();
 });
 
 function verifyJWT(req, res, next) {

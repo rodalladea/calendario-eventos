@@ -9,79 +9,112 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="./style.css">
 </head>
-<body>
+<body class="bg-light">
     <div class="container col-xl-10 col-lg-10 col-md-12 col-12">
         <div class="row">
-                <div class="vh-100 col-6 d-none d-sm-flex flex-column justify-content-center align-items-center" style="background-color: yellow;">
-                    <div class="mt-2">
-                        <button class="btn btn-primary font-weight-bold mr-1" onclick="menosMes()"><</button>
-                        <button class="btn btn-primary font-weight-bold mr-3" onclick="maisMes()">></button>
-                    </div>
-                    <div class=" d-flex flex-column align-items-center" style="background-color: white;" id="diasCalendario"></div>
+            <div class="vh-100 col-12 col-md-6 d-flex flex-column justify-content-center align-items-center bg-light">
+                <div class="mt-2">
+                    <button class="btn btn-primary font-weight-bold mr-1" onclick="menosMes()"><</button>
+                    <button class="btn btn-primary font-weight-bold mr-3" onclick="maisMes()">></button>
                 </div>
-                <div class="vh-100 col-12 col-sm-6 overflow-auto" style="background-color: brown;">
-                    <div class="col-12 bg-light">
-                        <div class="sticky-top p-1 bg-light">
-                            <button class="btn btn-primary btn-lg btn-block mt-5">Adicionar evento</button>
-                            <div class="mt-3 text-center">
-                                <h1>25/01/2015</h1>
+                <div class=" d-flex flex-column align-items-center bg-light" id="diasCalendario"></div>
+            </div>
+            <div class="vh-100 col-12 col-md-6 overflow-auto bg-light" id="eventoContainer">
+                <div class="col-12 bg-light p-0">
+                    <div class="sticky-top p-1 bg-light">
+                        <button class="btn btn-primary btn-lg btn-block mt-5" data-toggle="modal" data-target="#eventoModal" id="btnAddEvt">Adicionar evento</button>
+                        <div class="mt-3 text-center" id="dataEvento"></div>
+                    </div>
+                    <div class="pl-3" id="eventosLista"></div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="modal fade" id="eventoModal">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Adicionar Evento</h5>
+                    </div>
+                    <div class="modal-body">
+                        <form action="/evento/adicionar" method="POST" id="formEvento">
+                            <input type="hidden" name="usuarioId" value="{{_id}}" id="_id">
+                            <input type="hidden" name="dataEvento" id="dataNovo">
+
+                            <div class="form-group">
+                                <label for="descricao"> Descricao </label>
+                                <textarea class="form-control" rows="3" name="descricao" id="descricao"></textarea>
                             </div>
-                        </div>
-                        <div class="row w-100 border-bottom mt-2">
-                            <div class="d-flex flex-column align-items-center col-2">
-                                <p>17h00</p>
-                                <p>|</p>
-                                <p>18h00</p>
+
+                            <div class="form-group">
+                                <label for="horaInicio"> Hora de Inicio </label>
+                                <select name="horaInicio" class="form-control" id="horaInicio">
+                                    <option value="0">00h00</option>
+                                    <option value="1">01h00</option>
+                                    <option value="2">02h00</option>
+                                    <option value="3">03h00</option>
+                                    <option value="4">04h00</option>
+                                    <option value="5">05h00</option>
+                                    <option value="6">06h00</option>
+                                    <option value="7">07h00</option>
+                                    <option value="8">08h00</option>
+                                    <option value="9">09h00</option>
+                                    <option value="10">10h00</option>
+                                    <option value="11">11h00</option>
+                                    <option value="12">12h00</option>
+                                    <option value="13">13h00</option>
+                                    <option value="14">14h00</option>
+                                    <option value="15">15h00</option>
+                                    <option value="16">16h00</option>
+                                    <option value="17">17h00</option>
+                                    <option value="18">18h00</option>
+                                    <option value="19">19h00</option>
+                                    <option value="20">20h00</option>
+                                    <option value="21">21h00</option>
+                                    <option value="22">22h00</option>
+                                    <option value="23">23h00</option>
+                                </select>
                             </div>
-                            <div class="col-10">
-                                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Explicabo hic tenetur aliquam labore officiis! Et iste quisquam, eveniet quidem at soluta corporis esse amet quo ab, blanditiis officia laudantium facere!
-                                Lorem ipsum dolor sit, amet consectetur adipisicing elit. Veniam non qui obcaecati! Optio quis, tenetur in animi commodi aspernatur qui voluptatibus nisi aliquam itaque voluptas consectetur sed numquam! Minus, quisquam?
-                                Lorem ipsum dolor sit amet consectetur adipisicing elit. Ex nam velit repellendus obcaecati ipsum aliquam labore, ipsam earum. Unde quo rerum odio eum cumque tempore omnis numquam earum laborum voluptatum?
-                                </p>
+
+                            <div class="form-group">
+                                <label for="horaFim"> Hora de Termino </label>
+                                <select name="horaFim" class="form-control" id="horaFim">
+                                    <option value="0">00h00</option>
+                                    <option value="1">01h00</option>
+                                    <option value="2">02h00</option>
+                                    <option value="3">03h00</option>
+                                    <option value="4">04h00</option>
+                                    <option value="5">05h00</option>
+                                    <option value="6">06h00</option>
+                                    <option value="7">07h00</option>
+                                    <option value="8">08h00</option>
+                                    <option value="9">09h00</option>
+                                    <option value="10">10h00</option>
+                                    <option value="11">11h00</option>
+                                    <option value="12">12h00</option>
+                                    <option value="13">13h00</option>
+                                    <option value="14">14h00</option>
+                                    <option value="15">15h00</option>
+                                    <option value="16">16h00</option>
+                                    <option value="17">17h00</option>
+                                    <option value="18">18h00</option>
+                                    <option value="19">19h00</option>
+                                    <option value="20">20h00</option>
+                                    <option value="21">21h00</option>
+                                    <option value="22">22h00</option>
+                                    <option value="23">23h00</option>
+                                </select>
                             </div>
-                        </div>
-                        <div class="row w-100 border-bottom mt-2">
-                            <div class="d-flex flex-column align-items-center col-2 ">
-                                <p>17h00</p>
-                                <p>|</p>
-                                <p>18h00</p>
-                            </div>
-                            <div class="col-10">
-                                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Explicabo hic tenetur aliquam labore officiis! Et iste quisquam, eveniet quidem at soluta corporis esse amet quo ab, blanditiis officia laudantium facere!
-                                Lorem ipsum dolor sit, amet consectetur adipisicing elit. Veniam non qui obcaecati! Optio quis, tenetur in animi commodi aspernatur qui voluptatibus nisi aliquam itaque voluptas consectetur sed numquam! Minus, quisquam?
-                                Lorem ipsum dolor sit amet consectetur adipisicing elit. Ex nam velit repellendus obcaecati ipsum aliquam labore, ipsam earum. Unde quo rerum odio eum cumque tempore omnis numquam earum laborum voluptatum?
-                                </p>
-                            </div>
-                        </div>
-                        <div class="row w-100 border-bottom mt-2">
-                            <div class="d-flex flex-column align-items-center col-2 ">
-                                <p>17h00</p>
-                                <p>|</p>
-                                <p>18h00</p>
-                            </div>
-                            <div class="col-10">
-                                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Explicabo hic tenetur aliquam labore officiis! Et iste quisquam, eveniet quidem at soluta corporis esse amet quo ab, blanditiis officia laudantium facere!
-                                Lorem ipsum dolor sit, amet consectetur adipisicing elit. Veniam non qui obcaecati! Optio quis, tenetur in animi commodi aspernatur qui voluptatibus nisi aliquam itaque voluptas consectetur sed numquam! Minus, quisquam?
-                                Lorem ipsum dolor sit amet consectetur adipisicing elit. Ex nam velit repellendus obcaecati ipsum aliquam labore, ipsam earum. Unde quo rerum odio eum cumque tempore omnis numquam earum laborum voluptatum?
-                                </p>
-                            </div>
-                        </div>
-                        <div class="row w-100 border-bottom mt-2">
-                            <div class="d-flex flex-column align-items-center col-2 ">
-                                <p>17h00</p>
-                                <p>|</p>
-                                <p>18h00</p>
-                            </div>
-                            <div class="col-10">
-                                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Explicabo hic tenetur aliquam labore officiis! Et iste quisquam, eveniet quidem at soluta corporis esse amet quo ab, blanditiis officia laudantium facere!
-                                Lorem ipsum dolor sit, amet consectetur adipisicing elit. Veniam non qui obcaecati! Optio quis, tenetur in animi commodi aspernatur qui voluptatibus nisi aliquam itaque voluptas consectetur sed numquam! Minus, quisquam?
-                                Lorem ipsum dolor sit amet consectetur adipisicing elit. Ex nam velit repellendus obcaecati ipsum aliquam labore, ipsam earum. Unde quo rerum odio eum cumque tempore omnis numquam earum laborum voluptatum?
-                                </p>
-                            </div>
-                        </div>
-                        
+
+                            <button type="submit" class="btn btn-primary">Adicionar</button>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal" id="btnFecha">Fechar</button>
                     </div>
                 </div>
+            </div>
         </div>
     </div>
 
