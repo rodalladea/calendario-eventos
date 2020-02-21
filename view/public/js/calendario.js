@@ -239,7 +239,6 @@ function getEventosDia(dia) {
     for (let i = 0; i < eventosMes.length; i++) {
         if (eventosMes[i].diaEvento == dia) {
             arrayEventos.push(eventosMes[i]);
-            console.log(eventosMes[i]);
         }
     }
 
@@ -298,10 +297,16 @@ function addEventoBanco() {
         xmlhttp.setRequestHeader('Content-Type', 'application/json');
         xmlhttp.onreadystatechange = function() {
             if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
-                //const data = JSON.parse(xmlhttp.responseText);
-                
                 getEventosMes(month, year);
                 
+            } else if (xmlhttp.readyState === 4 && xmlhttp.status === 401) {
+                eventosLista.insertAdjacentHTML('afterbegin',`<div id="alert-hora" class="alert alert-danger position-absolute justify-content-center w-75 m-2 text-center" role="alert" style="z-index: 1;">
+                                                    ${xmlhttp.responseText}
+                                                </div>`);
+            
+                setTimeout(() => {
+                    document.getElementById('alert-hora').classList.add('d-none');
+                }, 2000);
             }
         }
         xmlhttp.send(JSON.stringify({usuarioId:`${idTarget}`, 
@@ -385,10 +390,16 @@ function atualizaEvento(event) {
         xmlhttp.setRequestHeader('Content-Type', 'application/json');
         xmlhttp.onreadystatechange = function() {
             if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
-                //const data = JSON.parse(xmlhttp.responseText);
-                
                 getEventosMes(month, year);
                 
+            } else if (xmlhttp.readyState === 4 && xmlhttp.status === 401) {
+                eventosLista.insertAdjacentHTML('afterbegin',`<div id="alert-hora" class="alert alert-danger position-absolute justify-content-center w-75 m-2 text-center" role="alert" style="z-index: 1;">
+                                                    ${xmlhttp.responseText}
+                                                </div>`);
+            
+                setTimeout(() => {
+                    document.getElementById('alert-hora').classList.add('d-none');
+                }, 2000);
             }
         }
         xmlhttp.send(JSON.stringify({_id: `${id}`,

@@ -11,9 +11,15 @@
 </head>
 <body class="bg-light">
     <div class="container col-xl-10 col-lg-10 col-md-12 col-12">
+        <div class="w-100 fixed-top align-items-center justify-content-center row"> 
+            <h1 class="mr-2">{{usuario.nome}}</h1>
+            <form action="/sair" method="POST">
+                <button class="btn btn-lg btn-primary" type="submit">Sair</button>
+            </form>
+        </div>
         <div class="row">
             <div class="vh-100 col-12 col-md-6 d-flex flex-column justify-content-center align-items-center bg-light">
-                <div class="mt-2">
+                <div class="mt-2 mb-2">
                     <button class="btn btn-primary font-weight-bold mr-1" onclick="menosMes()"><</button>
                     <button class="btn btn-primary font-weight-bold mr-3" onclick="maisMes()">></button>
                 </div>
@@ -21,13 +27,13 @@
             </div>
             <div class="vh-100 col-12 col-md-6 overflow-auto bg-light" id="eventoContainer">
                 <div class="col-12 bg-light p-0">
-                    <div class="sticky-top p-1 bg-light">
+                    <div class="sticky-top p-1 bg-light mt-2">
                         <button class="btn btn-primary btn-lg btn-block mt-5" data-toggle="modal" data-target="#eventoModal" id="btnAddEvt" onclick="limpaFormEvento()">
                             Adicionar evento
                         </button>
                         <div class="mt-3 text-center" id="dataEvento"></div>
                     </div>
-                    <div class="pl-3" id="eventosLista"></div>
+                    <div id="eventosLista"></div>
                 </div>
             </div>
         </div>
@@ -74,6 +80,6 @@
     <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
-    <script src="./calendario.js"></script>
+    <script src="./js/calendario.js"></script>
 </body>
 </html>

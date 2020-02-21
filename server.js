@@ -27,9 +27,9 @@ app.get('/cadastro', (req, res) => {
 });
 
 app.get('/calendario', verifyJWT, (req, res) => {
-    //Usuarios.findById(req.userId, 'usuario').then((usuarios) => {
-        res.render('calendario', { _id: req.userId });
-    //});
+    Usuarios.findById(req.userId, 'usuario').then((usuarios) => {
+        res.render('calendario', { usuario: usuarios[0] });
+    });
 });
 
 
@@ -40,7 +40,7 @@ app.get('/usuarios', (req, res) => {
 })
 
 app.get('/eventos', (req, res) => {
-    Usuarios.find({ "mesEvento": req.query.mes, "anoEvento": req.query.ano }, {}, 0, 'evento').then(result => {
+    Usuarios.find({ "mesEvento": req.query.mes, "anoEvento": req.query.ano }, { "diaEvento": 1, "horaInicio": 1 }, 0, 'evento').then(result => {
         res.send(result);
     });
 })
@@ -64,22 +64,28 @@ app.post('/login', (req, res) => {
                 
                 const id = usuario[0]._id;
 
-                let token = jwt.sign({ id }, TOKEN);
+                let token = jwt.sign({ id }, TOKEN, {
+                    expiresIn: '30m'
+                });
 
                 res.cookie('token', token);
-                res.redirect('/calendario');
+                res.end();
 
             } else {
                 res.status(403);
-                console.log('Erro de Autenticação!');
+                res.send('{"mensagem": "Senha invalida", "id": "senha"}');
             }
         } else {
             res.status(403);
-            console.log('Email invalido');
+            res.send('{"mensagem": "Email invalido", "id": "email"}');
         }
 
-        res.end();
     });
+});
+
+app.post('/sair', (req, res) => {
+    res.clearCookie('token');
+    res.redirect('/');
 });
 
 app.post('/evento/adicionar', (req, res) => {
@@ -100,14 +106,12 @@ function verifyJWT(req, res, next) {
     var token = req.cookies.token;
 
     if(!token) {
-        console.log('Você precisa estar logado para acessar este conteúdo');
         res.status(401);
         res.end();
     } else {
 
         jwt.verify(token, TOKEN, function(err, decoded) {
             if(err) {
-                console.log('Token inválido');
                 res.status(500);
                 res.end();
             } else {
@@ -121,37 +125,47 @@ function verifyJWT(req, res, next) {
 
 function salvaEvento(dado, res) {
     let evento = new Eventos(dado);
-    let aux = 0;
+    let horaInicio = 0;
+    let conflito = 0;
     Eventos.find({}, {}, 0, 'evento').then(evt => {
-        if (evt.length == 0) {
-            evento.save();
-            res.end();
+        
+        if (parseInt(evento.horaFim) <= parseInt(evento.horaInicio)) {
+            horaInicio++;
         }
-
+        
         evt.forEach(e => {
-            
             if(evento._id != e._id) {
                 if (evento.diaEvento == e.diaEvento && evento.mesEvento == e.mesEvento && evento.anoEvento == e.anoEvento) {
-                    if ((parseInt(evento.horaInicio) >= parseInt(e.horaInicio) && parseInt(evento.horaFim) <= parseInt(e.horaFim)) || 
-                        (parseInt(evento.horaInicio) <= parseInt(e.horaInicio) && parseInt(evento.horaFim) >= parseInt(e.horaFim)) ||
-                        (parseInt(evento.horaFim) <= parseInt(e.horaFim) && parseInt(evento.horaFim) >= parseInt(e.horaInicio)) ||
-                        (parseInt(evento.horaInicio) >= parseInt(e.horaInicio) && parseInt(evento.horaInicio) <= parseInt(e.horaFim)) ||
-                        (evento.horaFim <= evento.horaInicio)) {
-                        aux++;
+                    if (verificaHorario(evento, e)) {
+                        conflito++;
                     }
                 }
             }
             
         });
 
-        if (aux != 0) {
-            res.status(409);
-            res.end();
+        if (conflito != 0) {
+            res.status(401);
+            res.send('Eventos em conflito');
+        } else if (horaInicio != 0) {
+            res.status(401);
+            res.send('Hora inicial nao pode ser maior ou igual a hora final');
         } else {
             evento.save();
             res.end();
         }
     });
+}
+
+function verificaHorario(evento, e) {
+    if ((parseInt(evento.horaInicio) >= parseInt(e.horaInicio) && parseInt(evento.horaFim) <= parseInt(e.horaFim)) || 
+        (parseInt(evento.horaInicio) <= parseInt(e.horaInicio) && parseInt(evento.horaFim) >= parseInt(e.horaFim)) ||
+        (parseInt(evento.horaFim) <= parseInt(e.horaFim) && parseInt(evento.horaFim) >= parseInt(e.horaInicio)) ||
+        (parseInt(evento.horaInicio) >= parseInt(e.horaInicio) && parseInt(evento.horaInicio) <= parseInt(e.horaFim))) {
+            return true;
+    } else {
+        return false;
+    }
 }
 
 app.listen(process.env.PORT || 8080);
