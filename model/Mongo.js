@@ -28,8 +28,9 @@ module.exports = class Mongo {
 
     delete() {
         if (this._id) {
+            this._id = ObjectId(this._id);
             return conn.then(conn => {
-                return conn.db.collection(this.collection).deleteOne({_id: ObjectId(this._id)});
+                return conn.db.collection(this.collection).deleteOne({_id: this._id});
             });
         }
 

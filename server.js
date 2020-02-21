@@ -74,7 +74,7 @@ app.post('/login', (req, res) => {
                 console.log('Erro de Autenticação!');
             }
         } else {
-            res.status(500);
+            res.status(403);
             console.log('Email invalido');
         }
 
@@ -83,11 +83,17 @@ app.post('/login', (req, res) => {
 });
 
 app.post('/evento/adicionar', (req, res) => {
-    let evento = new Eventos(req.body);
-    evento.save();
+    salvaEvento(req.body, res);
+});
 
-    res.redirect('/calendario');
+app.post('/evento/remover', (req, res) => {
+    let evento = new Eventos(req.body);
+    evento.delete();
     res.end();
+});
+
+app.post('/evento/atualizar', (req, res) => {
+    salvaEvento(req.body, res);
 });
 
 function verifyJWT(req, res, next) {
@@ -111,6 +117,41 @@ function verifyJWT(req, res, next) {
             }
         });
     }
+}
+
+function salvaEvento(dado, res) {
+    let evento = new Eventos(dado);
+    let aux = 0;
+    Eventos.find({}, {}, 0, 'evento').then(evt => {
+        if (evt.length == 0) {
+            evento.save();
+            res.end();
+        }
+
+        evt.forEach(e => {
+            
+            if(evento._id != e._id) {
+                if (evento.diaEvento == e.diaEvento && evento.mesEvento == e.mesEvento && evento.anoEvento == e.anoEvento) {
+                    if ((parseInt(evento.horaInicio) >= parseInt(e.horaInicio) && parseInt(evento.horaFim) <= parseInt(e.horaFim)) || 
+                        (parseInt(evento.horaInicio) <= parseInt(e.horaInicio) && parseInt(evento.horaFim) >= parseInt(e.horaFim)) ||
+                        (parseInt(evento.horaFim) <= parseInt(e.horaFim) && parseInt(evento.horaFim) >= parseInt(e.horaInicio)) ||
+                        (parseInt(evento.horaInicio) >= parseInt(e.horaInicio) && parseInt(evento.horaInicio) <= parseInt(e.horaFim)) ||
+                        (evento.horaFim <= evento.horaInicio)) {
+                        aux++;
+                    }
+                }
+            }
+            
+        });
+
+        if (aux != 0) {
+            res.status(409);
+            res.end();
+        } else {
+            evento.save();
+            res.end();
+        }
+    });
 }
 
 app.listen(process.env.PORT || 8080);

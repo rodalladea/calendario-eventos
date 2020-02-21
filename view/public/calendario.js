@@ -8,7 +8,8 @@ var year = dateObj.getFullYear();
 var months = ['Janeiro', 'Fevereiro', 'Marco', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
 
 var markup;
-var antEvent = null;
+var antDiaSelecionado = null;
+var antEventoAlterado = null;
 var eventosMes = [];
 var diaSelecionado;
 
@@ -19,6 +20,11 @@ var btnAddEvt = document.getElementById('btnAddEvt');
 var eventosLista = document.getElementById('eventosLista');
 var formEvento = document.getElementById('formEvento');
 var btnFecha = document.getElementById('btnFecha');
+var selHoraInicio = document.getElementById('horaInicio');
+var selHoraFim = document.getElementById('horaFim');
+var descricaoText = document.getElementById('descricao');
+var btnAddForm = document.getElementById('btnAddForm');
+var eventoModal = document.getElementById('eventoModal');
 
 function maisMes() {
     if (month < 11) {
@@ -129,8 +135,8 @@ function gerCalendario(mes, ano) {
         btnAddEvt.disabled = true;
     }
 
-    if (document.getElementById(antEvent)) {
-        document.getElementById(antEvent).classList.add('bg-calendario');
+    if (document.getElementById(antDiaSelecionado)) {
+        document.getElementById(antDiaSelecionado).classList.add('bg-calendario');
     }
 
 }
@@ -165,12 +171,12 @@ function getData(event) {
 
     dataEvento.insertAdjacentHTML('afterbegin', data);
 
-    if (document.getElementById(antEvent)) {
-        document.getElementById(antEvent).classList.remove('bg-calendario');
+    if (document.getElementById(antDiaSelecionado)) {
+        document.getElementById(antDiaSelecionado).classList.remove('bg-calendario');
     }
 
     event.target.classList.add('bg-calendario');
-    antEvent = event.target.id;
+    antDiaSelecionado = event.target.id;
     dataNovo.value = event.target.id;
 
     populaListaEventos(getEventosDia(dia));
@@ -190,21 +196,26 @@ function populaListaEventos(arrayEventos) {
                         </div>`
     } else {
         for (let i = 0; i < arrayEventos.length; i++) {
-            elementEvento += `<div class="row w-100 border-bottom mt-2" id="${arrayEventos[i]._id}">
-                                <div class="d-flex flex-column align-items-center col-2 mb-2">
+            elementEvento += `<div class="row w-100 border-bottom mt-2">
+                                <div class="d-flex flex-column align-items-center col-3 mb-2">
                                     <p>${arrayEventos[i].horaInicio}h00</p>
                                     <p>|</p>
                                     <p>${arrayEventos[i].horaFim}h00</p>
-                                    <a href="">Excluir</a>
-                                    <a href="" data-toggle="modal" data-target="#eventoModal">Atualizar</a>
+                                    <button class="btn btn-danger w-100 mb-1" id="${arrayEventos[i]._id}" onclick="excEvento(event)">Excluir</button>
+                                    <button class="btn btn-primary w-100" data-toggle="modal" data-target="#eventoModal" id="${arrayEventos[i]._id}" onclick="atualizaEvento(event)">
+                                        Atualizar
+                                    </button>
                                 </div>
-                                <div class="col-10">
+                                <div class="col-9">
                                     <p>${arrayEventos[i].descricao}</p>
                                 </div>
                             </div>`;
         }
     }
 
+    if (document.getElementById(antDiaSelecionado)) {
+        desabilitaHora(arrayEventos);
+    }
     eventosLista.insertAdjacentHTML('afterbegin', elementEvento);
 }
 
@@ -215,7 +226,7 @@ function getEventosMes(mes, ano) {
         if(xmlhttp.readyState === 4 && xmlhttp.status === 200) {
             eventosMes = JSON.parse(xmlhttp.responseText);
             gerCalendario(month, year);
-            if (document.getElementById(antEvent)) {
+            if (document.getElementById(antDiaSelecionado)) {
                 populaListaEventos(getEventosDia(diaSelecionado));
             }
         }
@@ -228,12 +239,48 @@ function getEventosDia(dia) {
     for (let i = 0; i < eventosMes.length; i++) {
         if (eventosMes[i].diaEvento == dia) {
             arrayEventos.push(eventosMes[i]);
+            console.log(eventosMes[i]);
         }
     }
 
-    console.log(arrayEventos);
-
     return arrayEventos;
+}
+
+function desabilitaHora(eventos) {
+    let horas = new Array(24);
+    let elements = ``;
+    
+    eventos.forEach((evento) => {
+        let inicio = evento.horaInicio;
+        let fim = evento.horaFim;      
+
+        for (let i = 0; i < 24; i++) {
+            if (i >= inicio && i <= fim) {
+                horas[i] = i;
+            } else if (horas[i] == null) {
+                horas[i] = null;
+            }
+        }
+    });
+
+    
+    for (let i = 0; i < 24; i++) {
+        if (horas[i] == i) {
+            elements += `<option value="${i}" disabled>${i}h00</option>`;
+        } else {
+            elements += `<option value="${i}">${i}h00</option>`;
+        }
+    }
+
+    while (selHoraInicio.firstChild) {
+        selHoraInicio.removeChild(selHoraInicio.lastChild);
+    }
+    selHoraInicio.insertAdjacentHTML('afterbegin', elements);
+
+    while (selHoraFim.firstChild) {
+        selHoraFim.removeChild(selHoraFim.lastChild);
+    }
+    selHoraFim.insertAdjacentHTML('afterbegin', elements);
 }
 
 function addEventoBanco() {
@@ -253,7 +300,7 @@ function addEventoBanco() {
             if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
                 //const data = JSON.parse(xmlhttp.responseText);
                 
-                console.log('confirmado');
+                getEventosMes(month, year);
                 
             }
         }
@@ -264,11 +311,116 @@ function addEventoBanco() {
                                     horaFim:`${horaFimTarget}`}));
 
         btnFecha.click();
-        getEventosMes(month, year);
-        
     };
+}
+
+function excEvento(event) {
+    let eventoExcluir;
+
+    getEventosDia(diaSelecionado).forEach((evento) => {
+        if (evento._id == event.target.id) {
+            eventoExcluir = evento;
+        }
+    });
+
+    let xmlhttp = new XMLHttpRequest();
+    xmlhttp.open('POST', 'evento/remover', true);
+    xmlhttp.setRequestHeader('Content-Type', 'application/json');
+    xmlhttp.onreadystatechange = function() {
+        if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
+            //const data = JSON.parse(xmlhttp.responseText);
+            
+            getEventosMes(month, year);
+            
+        }
+    }
+    xmlhttp.send(JSON.stringify({_id: `${eventoExcluir._id}`,
+                                usuarioId:`${eventoExcluir.usuarioId}`, 
+                                dataEvento:`${eventoExcluir.diaEvento}-${eventoExcluir.mesEvento}-${eventoExcluir.anoEvento}`, 
+                                descricao:`${eventoExcluir.descricao}`, 
+                                horaInicio:`${eventoExcluir.horaInicio}`, 
+                                horaFim:`${eventoExcluir.horaFim}`}));
+    
+}
+
+function atualizaEvento(event) {
+    let eventoAtualizar;
+    let id = event.target.id;
+
+    getEventosDia(diaSelecionado).forEach((evento) => {
+        if (evento._id == id) {
+            eventoAtualizar = evento;
+        }
+    });
+
+    if (antEventoAlterado) {
+        for (let i = parseInt(antEventoAlterado.horaInicio); i <= parseInt(antEventoAlterado.horaFim); i++) {
+            selHoraInicio.childNodes[i].disabled = true;
+            selHoraFim.childNodes[i].disabled = true;
+        }
+    }
+
+    for (let i = parseInt(eventoAtualizar.horaInicio); i <= parseInt(eventoAtualizar.horaFim); i++) {
+        selHoraInicio.childNodes[i].disabled = false;
+        selHoraFim.childNodes[i].disabled = false;
+    }
+
+    descricaoText.value = eventoAtualizar.descricao;
+    selHoraInicio.childNodes[eventoAtualizar.horaInicio].selected = true;
+    selHoraFim.childNodes[eventoAtualizar.horaFim].selected = true;
+    formEvento.action = '/evento/atualizar';
+    btnAddForm.innerHTML = 'Atualizar';
+
+    formEvento.onsubmit = function (e) {
+        e.preventDefault();
+
+        let idTarget = document.getElementById('_id').value,
+            dataTarget = document.getElementById('dataNovo').value,
+            descricaoTarget = document.getElementById('descricao').value,
+            horaInicioTarget = document.getElementById('horaInicio').value,
+            horaFimTarget = document.getElementById('horaFim').value;
+
+        let xmlhttp = new XMLHttpRequest();
+        xmlhttp.open('POST', 'evento/atualizar', true);
+        xmlhttp.setRequestHeader('Content-Type', 'application/json');
+        xmlhttp.onreadystatechange = function() {
+            if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
+                //const data = JSON.parse(xmlhttp.responseText);
+                
+                getEventosMes(month, year);
+                
+            }
+        }
+        xmlhttp.send(JSON.stringify({_id: `${id}`,
+                                    usuarioId:`${idTarget}`, 
+                                    dataEvento:`${dataTarget}`, 
+                                    descricao:`${descricaoTarget}`, 
+                                    horaInicio:`${horaInicioTarget}`, 
+                                    horaFim:`${horaFimTarget}`}));
+
+        btnFecha.click();
+    };
+
+    antEventoAlterado = eventoAtualizar;
+}
+
+function limpaFormEvento() {
+    addEventoBanco();
+
+    descricaoText.value = '';
+    selHoraInicio.childNodes[0].selected = true;
+    selHoraFim.childNodes[0].selected = true;
+
+    formEvento.action = '/evento/adicionar';
+    btnAddForm.innerHTML = 'Adicionar';
+
+    if (antEventoAlterado) {
+        for (let i = parseInt(antEventoAlterado.horaInicio); i <= parseInt(antEventoAlterado.horaFim); i++) {
+            selHoraInicio.childNodes[i].disabled = true;
+            selHoraFim.childNodes[i].disabled = true;
+        }
+    }
 }
 
 getEventosMes(month, year);
 populaListaEventos([]);
-addEventoBanco();

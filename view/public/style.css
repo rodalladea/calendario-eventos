@@ -16,7 +16,7 @@ html {
     }
 }
 
-@media screen and (min-width: 1055px) and (max-width: 1399px) {
+@media screen and (min-width: 1060px) and (max-width: 1399px) {
     .w-calendario {
         width: 55px;
     }
