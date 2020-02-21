@@ -224,7 +224,9 @@ function getEventosMes(mes, ano) {
     xmlhttp.open('GET', 'eventos?mes='+mes+'&ano='+ano, true);
     xmlhttp.onreadystatechange = function () {
         if(xmlhttp.readyState === 4 && xmlhttp.status === 200) {
+            
             eventosMes = JSON.parse(xmlhttp.responseText);
+            console.log(eventosMes);
             gerCalendario(month, year);
             if (document.getElementById(antDiaSelecionado)) {
                 populaListaEventos(getEventosDia(diaSelecionado));

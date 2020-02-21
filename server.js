@@ -33,19 +33,19 @@ app.get('/calendario', verifyJWT, (req, res) => {
 });
 
 
-app.get('/usuarios', (req, res) => {
+app.get('/usuarios', verifyJWT, (req, res) => {
     Usuarios.find({}, {}, 0, 'usuario').then(result => {
         res.send(result);
     });
 })
 
-app.get('/eventos', (req, res) => {
-    Usuarios.find({ "mesEvento": req.query.mes, "anoEvento": req.query.ano }, { "diaEvento": 1, "horaInicio": 1 }, 0, 'evento').then(result => {
+app.get('/eventos', verifyJWT, (req, res) => {
+    Usuarios.find({ "usuarioId": req.userId, "mesEvento": req.query.mes, "anoEvento": req.query.ano }, { "diaEvento": 1, "horaInicio": 1 }, 0, 'evento').then(result => {
         res.send(result);
     });
 })
 
-app.post('/cadastro/enviado', (req, res) => {
+app.post('/cadastro/enviado', verifyJWT, (req, res) => {
     let usuario = new Usuarios(req.body);
     usuario.save();
 
@@ -88,17 +88,17 @@ app.post('/sair', (req, res) => {
     res.redirect('/');
 });
 
-app.post('/evento/adicionar', (req, res) => {
+app.post('/evento/adicionar', verifyJWT, (req, res) => {
     salvaEvento(req.body, res);
 });
 
-app.post('/evento/remover', (req, res) => {
+app.post('/evento/remover', verifyJWT, (req, res) => {
     let evento = new Eventos(req.body);
     evento.delete();
     res.end();
 });
 
-app.post('/evento/atualizar', (req, res) => {
+app.post('/evento/atualizar', verifyJWT, (req, res) => {
     salvaEvento(req.body, res);
 });
 
@@ -129,20 +129,23 @@ function salvaEvento(dado, res) {
     let conflito = 0;
     Eventos.find({}, {}, 0, 'evento').then(evt => {
         
+
         if (parseInt(evento.horaFim) <= parseInt(evento.horaInicio)) {
             horaInicio++;
         }
-        
-        evt.forEach(e => {
-            if(evento._id != e._id) {
-                if (evento.diaEvento == e.diaEvento && evento.mesEvento == e.mesEvento && evento.anoEvento == e.anoEvento) {
-                    if (verificaHorario(evento, e)) {
-                        conflito++;
+         
+        if (evento.usuarioId == evt.usuarioId) {
+            evt.forEach(e => {
+                if(evento._id != e._id) {
+                    if (evento.diaEvento == e.diaEvento && evento.mesEvento == e.mesEvento && evento.anoEvento == e.anoEvento) {
+                        if (verificaHorario(evento, e)) {
+                            conflito++;
+                        }
                     }
                 }
-            }
-            
-        });
+                
+            });
+        }
 
         if (conflito != 0) {
             res.status(401);
