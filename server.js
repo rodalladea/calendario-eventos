@@ -45,7 +45,7 @@ app.get('/eventos', verifyJWT, (req, res) => {
     });
 })
 
-app.post('/cadastro/enviado', verifyJWT, (req, res) => {
+app.post('/cadastro/enviado', (req, res) => {
     let usuario = new Usuarios(req.body);
     usuario.save();
 
